@@ -247,9 +247,16 @@
                 <i class="fa-solid fa-bars text-dark"></i>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarCollapse">
-                <ul class="navbar-nav mb-2 mb-md-0">
+                <ul class="navbar-nav align-items-center mb-2 mb-md-0">
+                    <li class="nav-item me-4 d-none d-lg-flex align-items-center text-muted small">
+                        <span class="me-3">&copy; <?php echo date('Y'); ?> <strong>Sintek Gestión</strong></span>
+                        <span class="me-3"><i class="fa-solid fa-phone me-1"></i> +54 0280154847619</span>
+                        <a href="https://www.youtube.com/@sintek-gestion" target="_blank" rel="noopener noreferrer" class="text-muted hover-white" title="YouTube Sintek Gestión">
+                            <i class="fa-brands fa-youtube text-danger fs-5"></i>
+                        </a>
+                    </li>
                     <li class="nav-item">
-                        <a class="nav-link text-danger" href="logout.php"><i class="fa-solid fa-arrow-right-from-bracket"></i> Salir</a>
+                        <a class="btn btn-sm btn-outline-danger d-flex align-items-center" href="logout.php"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Salir</a>
                     </li>
                 </ul>
             </div>
