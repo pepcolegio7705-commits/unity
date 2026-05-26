@@ -1,0 +1,40 @@
+-- Crear base de datos si no existe
+CREATE DATABASE IF NOT EXISTS unity_gestion;
+USE unity_gestion;
+
+-- Tabla de roles
+CREATE TABLE roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Tabla de estados
+CREATE TABLE estados (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(20) NOT NULL UNIQUE
+);
+
+-- Tabla de usuarios
+CREATE TABLE usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  dni VARCHAR(20) NOT NULL UNIQUE,
+  correo VARCHAR(100) NOT NULL UNIQUE,
+  clave VARCHAR(255) NOT NULL,
+  rol_id INT NOT NULL,
+  estado_id INT NOT NULL,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE RESTRICT,
+  FOREIGN KEY (estado_id) REFERENCES estados(id) ON DELETE RESTRICT
+);
+
+-- Insertar valores base en roles
+INSERT INTO roles (nombre) VALUES
+  ('Administrador'),
+  ('Docente'),
+  ('Alumno');
+
+-- Insertar valores base en estados
+INSERT INTO estados (nombre) VALUES
+  ('Activo'),
+  ('Inactivo');

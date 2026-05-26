@@ -1,0 +1,91 @@
+/* Fondo con imagen personalizada */
+body {
+  background: url("../img/2.png") no-repeat center center fixed;
+  background-size: cover;
+  font-family: "Segoe UI", sans-serif;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Capa de oscurecimiento para mejorar contraste */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7); /* Blanco semitransparente */
+  backdrop-filter: blur(2px);
+  z-index: 0;
+}
+
+/* Contenedor del login */
+.login-card {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  padding: 2rem;
+  width: 100%;
+  max-width: 420px;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Logo superior (opcional) */
+.login-logo {
+  display: block;
+  margin: 0 auto 1rem;
+  max-width: 180px;
+}
+
+/* Título del formulario */
+.login-title {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #0d6efd;
+  margin-bottom: 1.2rem;
+  font-weight: 600;
+}
+
+/* Campos del formulario */
+.form-control {
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.15rem rgba(13,110,253,0.25);
+}
+
+/* Botón de login */
+.btn-login {
+  background-color: #0d6efd;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 0.6rem;
+  transition: background-color 0.3s;
+  border: none;
+}
+
+.btn-login:hover {
+  background-color: #0b5ed7;
+}
+
+/* Pie del login */
+.login-footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 1rem;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}

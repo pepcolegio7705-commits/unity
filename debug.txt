@@ -1,0 +1,34 @@
+Array
+(
+    [id] => 9172
+    [alumno] => WIENER JORGE ALFREDO
+    [legajo] => 123457887
+    [libro] => 9
+    [folio] => 9
+    [dni] => 28880538
+    [dni_original] => 28880537
+    [tutorDni] => 12288794
+    [fechan] => 1981-06-20
+    [lugar] => Tigre Bs As
+    [nacionalidad] => Argentino
+    [email] => jawsistemas@gmail.com
+    [telefono] => 2804671799
+    [escp] => Escuela N° 97
+    [fecha_alta] => 2025-07-26
+    [estatus] => 1
+    [obs] => Pase 776
+)
+
+Array
+(
+    [foto] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)

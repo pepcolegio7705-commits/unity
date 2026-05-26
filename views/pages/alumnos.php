@@ -1,0 +1,301 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title mb-0">Gestión de Alumnos</h1>
+    <?php if(isset($_SESSION['rol']) && in_array($_SESSION['rol'], ['Administrador', 'Secretario', 'Directivo'])): ?>
+        <button class="btn btn-primary shadow-sm rounded-3 px-4" data-bs-toggle="modal" data-bs-target="#modalAgregarAlumno">
+            <i class="fa-solid fa-plus me-2"></i> Nuevo Alumno
+        </button>
+    <?php endif; ?>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <div class="table-responsive">
+            <table id="tablaAlumnos" class="table table-hover align-middle w-100">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>DNI</th>
+                        <th>Legajo</th>
+                        <th>Curso</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Llenado por AJAX -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar Alumno -->
+<div class="modal fade" id="modalAgregarAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="formAgregarAlumno" class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold">Agregar Nuevo Alumno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4">
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Nombre Completo *</label>
+                        <input type="text" name="alumno" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">DNI *</label>
+                        <input type="text" name="dni" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Legajo</label>
+                        <input type="text" name="legajo" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Libro</label>
+                        <input type="text" name="libro" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Folio</label>
+                        <input type="text" name="folio" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Email</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted small fw-semibold">Observaciones</label>
+                        <textarea name="obs" class="form-control" rows="3"></textarea>
+                    </div>
+                    <input type="hidden" name="action" value="guardar">
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 px-4 pb-4">
+                <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-3 px-4">Guardar Alumno</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar Alumno -->
+<div class="modal fade" id="modalEditarAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="formEditarAlumno" class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold">Editar Alumno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4">
+                <div class="row g-3 mt-1">
+                    <input type="hidden" name="id" id="edit_id">
+                    <input type="hidden" name="action" value="editar">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Nombre Completo *</label>
+                        <input type="text" name="alumno" id="edit_alumno" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">DNI *</label>
+                        <input type="text" name="dni" id="edit_dni" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Legajo</label>
+                        <input type="text" name="legajo" id="edit_legajo" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Libro</label>
+                        <input type="text" name="libro" id="edit_libro" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Folio</label>
+                        <input type="text" name="folio" id="edit_folio" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Email</label>
+                        <input type="email" name="email" id="edit_email" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-semibold">Teléfono</label>
+                        <input type="text" name="telefono" id="edit_telefono" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label text-muted small fw-semibold">Observaciones</label>
+                        <textarea name="obs" id="edit_obs" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 px-4 pb-4">
+                <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-warning rounded-3 px-4">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Ver Alumno -->
+<div class="modal fade" id="modalVerAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold">Detalles del Alumno</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4" id="contenidoVerAlumno">
+                <!-- Se llena por AJAX -->
+            </div>
+            <div class="modal-footer border-top-0 px-4 pb-4">
+                <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let tablaAlumnos;
+$(document).ready(function() {
+    tablaAlumnos = $('#tablaAlumnos').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: 'controllers/alumnos_ajax.php',
+            type: 'POST',
+            data: { action: 'listar' }
+        },
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        columns: [
+            { data: 'id_hash', visible: false },
+            { data: 'nombre', className: 'fw-semibold' },
+            { data: 'dni' },
+            { data: 'legajo' },
+            { data: 'curso', render: function(data) { return data ? `<span class="badge bg-primary bg-opacity-10 text-primary">${data}</span>` : '<span class="text-muted small">Sin asignar</span>'; } },
+            { data: 'estado', render: function(data) { return `<span class="badge ${data === 'Activo' ? 'bg-success' : 'bg-secondary'} bg-opacity-10 text-${data === 'Activo' ? 'success' : 'secondary'}">${data}</span>`; } },
+            { 
+                data: 'id_hash', 
+                className: 'text-end',
+                orderable: false,
+                render: function(data, type, row) {
+                    return `
+                        <div class="btn-group shadow-sm">
+                            <button class="btn btn-sm btn-light border" title="Ver" onclick="verAlumno('${data}')"><i class="fa-solid fa-eye text-primary"></i></button>
+                            <button class="btn btn-sm btn-light border" title="Editar" onclick="editarAlumno('${data}')"><i class="fa-solid fa-pen text-warning"></i></button>
+                            <button class="btn btn-sm btn-light border" title="Eliminar" onclick="eliminarAlumno('${data}')"><i class="fa-solid fa-trash text-danger"></i></button>
+                        </div>
+                    `;
+                }
+            }
+        ]
+    });
+
+    $('#formAgregarAlumno').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'controllers/alumnos_ajax.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(res) {
+                if(res.status === 'success') {
+                    $('#modalAgregarAlumno').modal('hide');
+                    $('#formAgregarAlumno')[0].reset();
+                    tablaAlumnos.ajax.reload();
+                    Swal.fire({icon: 'success', title: '¡Éxito!', text: res.msg, showConfirmButton: false, timer: 1500});
+                } else {
+                    Swal.fire('Error', res.msg, 'error');
+                }
+            }
+        });
+    });
+});
+
+function eliminarAlumno(id_hash) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.post('controllers/alumnos_ajax.php', { action: 'eliminar', id: id_hash }, function(res) {
+                if(res.status === 'success') {
+                    tablaAlumnos.ajax.reload();
+                    Swal.fire({icon: 'success', title: 'Eliminado', text: res.msg, showConfirmButton: false, timer: 1500});
+                } else {
+                    Swal.fire('Error', res.msg, 'error');
+                }
+            }, 'json');
+        }
+    });
+}
+    $('#formEditarAlumno').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'controllers/alumnos_ajax.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(res) {
+                if(res.status === 'success') {
+                    $('#modalEditarAlumno').modal('hide');
+                    tablaAlumnos.ajax.reload(null, false);
+                    Swal.fire({icon: 'success', title: '¡Actualizado!', text: res.msg, showConfirmButton: false, timer: 1500});
+                } else {
+                    Swal.fire('Error', res.msg, 'error');
+                }
+            }
+        });
+    });
+
+function editarAlumno(id_hash) {
+    $.post('controllers/alumnos_ajax.php', { action: 'obtener', id: id_hash }, function(res) {
+        if(res.status === 'success') {
+            $('#edit_id').val(res.data.id_hash);
+            $('#edit_alumno').val(res.data.alumno);
+            $('#edit_dni').val(res.data.dni);
+            $('#edit_legajo').val(res.data.legajo);
+            $('#edit_libro').val(res.data.libro);
+            $('#edit_folio').val(res.data.folio);
+            $('#edit_email').val(res.data.email);
+            $('#edit_telefono').val(res.data.telefono);
+            $('#edit_obs').val(res.data.obs);
+            $('#modalEditarAlumno').modal('show');
+        } else {
+            Swal.fire('Error', res.msg, 'error');
+        }
+    }, 'json');
+}
+
+function verAlumno(id_hash) {
+    $.post('controllers/alumnos_ajax.php', { action: 'obtener', id: id_hash }, function(res) {
+        if(res.status === 'success') {
+            const data = res.data;
+            let html = `
+                <div class="row">
+                    <div class="col-md-6 mb-3"><strong>Nombre:</strong><br> ${data.alumno}</div>
+                    <div class="col-md-6 mb-3"><strong>DNI:</strong><br> ${data.dni}</div>
+                    <div class="col-md-6 mb-3"><strong>Legajo:</strong><br> ${data.legajo || '-'}</div>
+                    <div class="col-md-3 mb-3"><strong>Libro:</strong><br> ${data.libro || '-'}</div>
+                    <div class="col-md-3 mb-3"><strong>Folio:</strong><br> ${data.folio || '-'}</div>
+                    <div class="col-md-6 mb-3"><strong>Email:</strong><br> ${data.email || '-'}</div>
+                    <div class="col-md-6 mb-3"><strong>Teléfono:</strong><br> ${data.telefono || '-'}</div>
+                    <div class="col-12"><strong>Observaciones:</strong><br> ${data.obs || '-'}</div>
+                </div>
+            `;
+            $('#contenidoVerAlumno').html(html);
+            $('#modalVerAlumno').modal('show');
+        } else {
+            Swal.fire('Error', res.msg, 'error');
+        }
+    }, 'json');
+}
+</script>

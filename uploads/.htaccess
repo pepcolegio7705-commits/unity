@@ -1,0 +1,5 @@
+# Bloquea el acceso web directo a esta carpeta
+Options -Indexes
+<FilesMatch "\.jpg$">
+  Require all granted
+</FilesMatch>

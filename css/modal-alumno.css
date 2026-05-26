@@ -1,0 +1,57 @@
+/* Encabezado del modal */
+.modal-header.bg-primary {
+  background-color: #0d6efd;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid #0b5ed7;
+}
+
+/* Botón cerrar en blanco */
+.btn-close-white {
+  filter: invert(1);
+}
+
+/* Etiquetas de campos */
+.modal-content label.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 4px;
+}
+
+/* Inputs y textarea */
+.modal-content input,
+.modal-content textarea {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0.5rem;
+  transition: border-color 0.3s ease;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border-color: #0d6efd;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(13,110,253,0.25);
+}
+
+/* Botón guardar */
+.modal-footer .btn-success {
+  font-size: 0.95rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 0.25rem;
+}
+
+/* Títulos de sección */
+.modal-body .section-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  color: #0d6efd;
+}
+
+/* Fondo del modal */
+.modal-content {
+  background-color: #fefefe;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
