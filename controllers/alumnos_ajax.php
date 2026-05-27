@@ -7,6 +7,15 @@ header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
 
+// Array de acciones que requieren validación CSRF
+$acciones_escritura = ['guardar', 'eliminar', 'editar'];
+if (in_array($action, $acciones_escritura)) {
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        echo json_encode(['status' => 'error', 'msg' => 'Falsificación de petición detectada (CSRF).']);
+        exit;
+    }
+}
+
 switch ($action) {
     case 'listar':
         $draw = intval($_POST['draw'] ?? 1);
@@ -63,6 +72,17 @@ switch ($action) {
             "recordsFiltered" => $recordsTotal,
             "data" => $data
         ]);
+        break;
+
+    case 'obtener_ultimo_legajo':
+        // Consultar el legajo más alto (asumiendo que puede contener texto, hacemos limpieza a números si es necesario, o lo tratamos como entero)
+        $stmt = $pdo->query("SELECT MAX(CAST(legajo AS UNSIGNED)) as max_legajo FROM lista_alfa");
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $ultimo = $resultado['max_legajo'] ? (int)$resultado['max_legajo'] : 0;
+        $siguiente = $ultimo + 1;
+        
+        echo json_encode(['status' => 'success', 'ultimo' => $ultimo, 'siguiente' => $siguiente]);
         break;
         
     case 'guardar':

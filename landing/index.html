@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity2 - Sintek</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primario: #d35400; /* Naranja tecnológico */
+            --color-secundario: #f39c12; 
+            --gris-fondo: #fffaf0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--gris-fondo);
+        }
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--color-primario) !important;
+            font-size: 1.5rem;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, var(--color-primario) 0%, #333333 100%);
+            color: white;
+            padding: 100px 0;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .hero-img {
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: #fff;
+            padding: 10px;
+        }
+        .module-section {
+            padding: 80px 0;
+        }
+        .module-title {
+            font-weight: 700;
+            color: var(--color-primario);
+        }
+        .feature-list li {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .feature-list i {
+            color: var(--color-secundario);
+            margin-right: 10px;
+        }
+        .btn-custom {
+            background-color: #ffc107;
+            color: #000;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-transform: uppercase;
+        }
+        .btn-custom:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand" href="../../sintek_landing_page/index.html"><i class="fas fa-arrow-left me-2"></i> Volver a Sintek</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section text-center text-lg-start">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <h1 class="hero-title">El Eslabón de la Integración Empresarial</h1>
+                    <p class="lead mb-4 opacity-75">La plataforma centralizada para potenciar y unificar tus operaciones. Escalable, segura y adaptada a flujos de trabajo modernos.</p>
+                    <a href="../index.php" class="btn btn-custom btn-lg shadow">Explorar Sistema <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-img d-flex align-items-center justify-content-center" style="height: 300px; background: #e9ecef;">
+                        <h3 class="text-muted"><i class="fas fa-project-diagram fa-3x mb-3"></i><br>Dashboard Unity2</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="module-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 order-lg-2">
+                    <h2 class="module-title">Conectando todas las piezas</h2>
+                    <p class="lead">Deja de trabajar en silos de información. Unity2 trae cohesión y transparencia.</p>
+                    <ul class="feature-list mt-4 list-unstyled">
+                        <li><i class="fas fa-check-circle"></i> <strong>Sincronización Total:</strong> Todas tus áreas hablando el mismo idioma.</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Estadísticas Avanzadas:</strong> Toma decisiones basadas en datos estructurados.</li>
+                        <li><i class="fas fa-check-circle"></i> <strong>Crecimiento Modular:</strong> Suma nuevas funciones a medida que tu empresa crece.</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 order-lg-1">
+                    <div class="hero-img d-flex align-items-center justify-content-center" style="height: 300px; background: #e9ecef;">
+                        <h3 class="text-muted"><i class="fas fa-network-wired fa-3x mb-3"></i><br>Integraciones</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-4 text-white" style="background: #1a1a1a;">
+        <div class="container">
+            <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> Sintek - Unity2.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

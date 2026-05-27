@@ -50,7 +50,8 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted small fw-semibold">Legajo</label>
-                        <input type="text" name="legajo" class="form-control">
+                        <input type="text" name="legajo" id="input_legajo" class="form-control" readonly>
+                        <small id="info_ultimo_legajo" class="text-info"></small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label text-muted small fw-semibold">Libro</label>
@@ -73,6 +74,7 @@
                         <textarea name="obs" class="form-control" rows="3"></textarea>
                     </div>
                     <input type="hidden" name="action" value="guardar">
+                    <input type="hidden" name="csrf_token" value="<?php echo generar_token_csrf(); ?>">
                 </div>
             </div>
             <div class="modal-footer border-top-0 px-4 pb-4">
@@ -95,6 +97,7 @@
                 <div class="row g-3 mt-1">
                     <input type="hidden" name="id" id="edit_id">
                     <input type="hidden" name="action" value="editar">
+                    <input type="hidden" name="csrf_token" value="<?php echo generar_token_csrf(); ?>">
                     <div class="col-md-6">
                         <label class="form-label text-muted small fw-semibold">Nombre Completo *</label>
                         <input type="text" name="alumno" id="edit_alumno" class="form-control" required>
@@ -156,6 +159,21 @@
 </div>
 
 <script>
+// Helper para escapar HTML en JS
+function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/[&<>'"]/g, function(tag) {
+        const charsToReplace = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        };
+        return charsToReplace[tag] || tag;
+    });
+}
+
 let tablaAlumnos;
 $(document).ready(function() {
     tablaAlumnos = $('#tablaAlumnos').DataTable({
@@ -212,6 +230,17 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Auto-generar legajo al abrir el modal de agregar
+    $('#modalAgregarAlumno').on('show.bs.modal', function () {
+        $.post('controllers/alumnos_ajax.php', { action: 'obtener_ultimo_legajo' }, function(res) {
+            if(res.status === 'success') {
+                $('#input_legajo').val(res.siguiente);
+                $('#info_ultimo_legajo').text('Último legajo ingresado: ' + res.ultimo);
+            }
+        }, 'json');
+    });
+
 });
 
 function eliminarAlumno(id_hash) {
@@ -226,7 +255,8 @@ function eliminarAlumno(id_hash) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('controllers/alumnos_ajax.php', { action: 'eliminar', id: id_hash }, function(res) {
+            let csrf_token = $('#formAgregarAlumno').find('input[name="csrf_token"]').val(); // Usamos el token del formulario principal
+            $.post('controllers/alumnos_ajax.php', { action: 'eliminar', id: id_hash, csrf_token: csrf_token }, function(res) {
                 if(res.status === 'success') {
                     tablaAlumnos.ajax.reload();
                     Swal.fire({icon: 'success', title: 'Eliminado', text: res.msg, showConfirmButton: false, timer: 1500});
@@ -281,14 +311,14 @@ function verAlumno(id_hash) {
             const data = res.data;
             let html = `
                 <div class="row">
-                    <div class="col-md-6 mb-3"><strong>Nombre:</strong><br> ${data.alumno}</div>
-                    <div class="col-md-6 mb-3"><strong>DNI:</strong><br> ${data.dni}</div>
-                    <div class="col-md-6 mb-3"><strong>Legajo:</strong><br> ${data.legajo || '-'}</div>
-                    <div class="col-md-3 mb-3"><strong>Libro:</strong><br> ${data.libro || '-'}</div>
-                    <div class="col-md-3 mb-3"><strong>Folio:</strong><br> ${data.folio || '-'}</div>
-                    <div class="col-md-6 mb-3"><strong>Email:</strong><br> ${data.email || '-'}</div>
-                    <div class="col-md-6 mb-3"><strong>Teléfono:</strong><br> ${data.telefono || '-'}</div>
-                    <div class="col-12"><strong>Observaciones:</strong><br> ${data.obs || '-'}</div>
+                    <div class="col-md-6 mb-3"><strong>Nombre:</strong><br> ${escapeHTML(data.alumno)}</div>
+                    <div class="col-md-6 mb-3"><strong>DNI:</strong><br> ${escapeHTML(data.dni)}</div>
+                    <div class="col-md-6 mb-3"><strong>Legajo:</strong><br> ${escapeHTML(data.legajo) || '-'}</div>
+                    <div class="col-md-3 mb-3"><strong>Libro:</strong><br> ${escapeHTML(data.libro) || '-'}</div>
+                    <div class="col-md-3 mb-3"><strong>Folio:</strong><br> ${escapeHTML(data.folio) || '-'}</div>
+                    <div class="col-md-6 mb-3"><strong>Email:</strong><br> ${escapeHTML(data.email) || '-'}</div>
+                    <div class="col-md-6 mb-3"><strong>Teléfono:</strong><br> ${escapeHTML(data.telefono) || '-'}</div>
+                    <div class="col-12"><strong>Observaciones:</strong><br> ${escapeHTML(data.obs) || '-'}</div>
                 </div>
             `;
             $('#contenidoVerAlumno').html(html);

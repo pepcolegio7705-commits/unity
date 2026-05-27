@@ -37,4 +37,34 @@ function require_login() {
         exit;
     }
 }
+
+/**
+ * Genera un token CSRF y lo guarda en la sesión.
+ */
+function generar_token_csrf() {
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verifica si el token CSRF recibido coincide con el de la sesión.
+ */
+function verificar_token_csrf($token_recibido) {
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    if (isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token_recibido)) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Escapa HTML de manera centralizada para evitar ataques XSS
+ */
+function escape_html($string) {
+    if (is_null($string)) { return ''; }
+    return htmlspecialchars(trim($string), ENT_QUOTES, 'UTF-8');
+}
 ?>
