@@ -1,0 +1,7 @@
+# Restringir acceso HTTP a los respaldos por seguridad
+<FilesMatch "\.(sql|bak|gz|zip)$">
+    Require all denied
+</FilesMatch>
+
+# O directamente denegar todo el acceso a la carpeta
+Require all denied

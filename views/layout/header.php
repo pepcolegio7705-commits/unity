@@ -313,11 +313,8 @@
                                 <i class="fa-solid fa-gear"></i> Configuración
                             </a>
                         </li>
-                        <li class="nav-item mt-4 px-3">
-                            <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Por migrar</small>
-                        </li>
                         <li class="nav-item">
-                            <a class="nav-link text-muted" href="respaldo.php">
+                            <a class="nav-link <?php echo ($page == 'respaldos') ? 'active' : ''; ?>" href="?page=respaldos">
                                 <i class="fa-solid fa-database"></i> Respaldos
                             </a>
                         </li>

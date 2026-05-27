@@ -20,7 +20,8 @@ $allowed_pages = [
     'asistencias',
     'calificaciones',
     'usuarios',
-    'configuracion'
+    'configuracion',
+    'respaldos'
 ];
 
 if (!in_array($page, $allowed_pages)) {

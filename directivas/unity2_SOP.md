@@ -20,3 +20,4 @@ Esta directiva sirve como plantilla base y **Fuente de la Verdad** para el proye
 - **Unicidad de Legajos:** Los legajos de los alumnos DEBEN ser únicos y autogenerados secuencialmente desde el mayor existente para evitar colisiones.
 - **Vulnerabilidades CSRF:** Todo formulario AJAX que modifique datos (POST) debe validar un token de seguridad.
 - **Vulnerabilidades XSS (DOM):** Al insertar datos JSON en el DOM mediante JavaScript (`.html()`), los datos DEBEN estar escapados (sanitizados), o usar textContent (`.text()`).
+- **Seguridad de Respaldos:** La carpeta `respaldos/` contiene información extremadamente sensible (.sql). DEBE contar obligatoriamente con un archivo `.htaccess` con `Require all denied` para prevenir descargas directas no autorizadas.
