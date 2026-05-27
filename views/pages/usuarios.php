@@ -43,6 +43,7 @@
                 <div class="modal-body bg-light">
                     <input type="hidden" id="usuarioId" name="id">
                     <input type="hidden" id="usuarioAction" name="action" value="guardar">
+                    <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo generar_token_csrf(); ?>">
                     
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark">Nombre Completo <span class="text-danger">*</span></label>
@@ -235,7 +236,8 @@ function eliminarUsuario(id_hash) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('controllers/usuarios_ajax.php', { action: 'eliminar', id: id_hash }, function(res) {
+            let csrf_token = $('#csrf_token').val();
+            $.post('controllers/usuarios_ajax.php', { action: 'eliminar', id: id_hash, csrf_token: csrf_token }, function(res) {
                 if (res.status === 'success') {
                     tablaUsuarios.ajax.reload(null, false);
                     Swal.fire({

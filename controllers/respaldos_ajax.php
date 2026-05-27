@@ -59,8 +59,8 @@ switch ($action) {
             fwrite($file, "-- Fecha: " . date('Y-m-d H:i:s') . "\n\n");
             fwrite($file, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
-            // Obtener tablas
-            $stmt = $pdo->query("SHOW TABLES");
+            // Obtener solo las tablas base (ignorar vistas que pueden causar error 1449 de Definer)
+            $stmt = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
             $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
             foreach ($tables as $table) {

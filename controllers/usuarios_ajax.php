@@ -7,6 +7,15 @@ header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
 
+// Array de acciones que requieren validación CSRF
+$acciones_escritura = ['guardar', 'eliminar', 'editar'];
+if (in_array($action, $acciones_escritura)) {
+    if (!isset($_POST['csrf_token']) || !verificar_token_csrf($_POST['csrf_token'])) {
+        echo json_encode(['status' => 'error', 'msg' => 'Falsificación de petición detectada (CSRF).']);
+        exit;
+    }
+}
+
 switch ($action) {
     case 'listar':
         $draw = intval($_POST['draw'] ?? 1);
@@ -177,7 +186,7 @@ switch ($action) {
             }
             
             $logout_required = false;
-            if ($id == $_SESSION['user_id'] || $id == $_SESSION['usuario_id']) {
+            if ($id == $_SESSION['user_id']) {
                 $logout_required = true;
             }
             
@@ -196,7 +205,7 @@ switch ($action) {
         }
         
         // Prevent deleting oneself
-        if ($id == $_SESSION['usuario_id']) {
+        if ($id == $_SESSION['user_id']) {
             echo json_encode(['status' => 'error', 'msg' => 'No puedes eliminar tu propio usuario activo.']);
             exit;
         }
