@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once 'config/database.php';
-require_once 'config/security.php';
-require_once 'fpdf/fpdf.php';
+require_once '../config/database.php';
+require_once '../config/security.php';
+require_once '../fpdf/fpdf.php';
 
 // Validar login (Docentes y Admins pueden imprimir)
 if (!isset($_SESSION['user_id'])) {
@@ -60,7 +60,7 @@ class PDF extends FPDF {
 
     function Header() {
         if ($this->logo && file_exists($this->logo)) {
-            $fpdf_logo = 'assets/img/logo_fpdf.jpg';
+            $fpdf_logo = '../assets/img/logo_fpdf.jpg';
             // Generar JPG temporal si no existe o si el logo.png fue modificado recientemente
             if (!file_exists($fpdf_logo) || filemtime($this->logo) > filemtime($fpdf_logo)) {
                 $img_data = @file_get_contents($this->logo);

@@ -279,6 +279,6 @@ function imprimirLista() {
         Swal.fire('Error', 'Faltan parámetros', 'error');
         return;
     }
-    window.open(`imprimir_lista_aula.php?curso_id=${curso}&materia_id=${materia}`, '_blank');
+    window.open(`controllers/imprimir_lista_aula.php?curso_id=${curso}&materia_id=${materia}`, '_blank');
 }
 </script>

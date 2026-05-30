@@ -255,7 +255,7 @@ function imprimirPDFMat() {
     const curso = $('#filtroCursoMat').val();
     const materia = $('#filtroMateriaMat').val();
     if(ciclo && curso && materia) {
-        window.open(`imprimir_reporte_materia.php?ciclo_id=${ciclo}&curso_id=${curso}&materia_id=${materia}`, '_blank');
+        window.open(`controllers/imprimir_reporte_materia.php?ciclo_id=${ciclo}&curso_id=${curso}&materia_id=${materia}`, '_blank');
     }
 }
 
@@ -356,7 +356,7 @@ function imprimirPDFSab() {
     const curso = $('#filtroCursoSab').val();
     const instancia = $('#filtroInstanciaSab').val();
     if(ciclo && curso && instancia) {
-        window.open(`imprimir_reporte_sabana.php?ciclo_id=${ciclo}&curso_id=${curso}&instancia_id=${instancia}`, '_blank');
+        window.open(`controllers/imprimir_reporte_sabana.php?ciclo_id=${ciclo}&curso_id=${curso}&instancia_id=${instancia}`, '_blank');
     }
 }
 </script>
