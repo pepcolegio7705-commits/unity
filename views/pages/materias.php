@@ -14,10 +14,10 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre de Materia</th>
-                        <th>Curso</th>
-                        <th>Turno</th>
+                        <th>Asignatura</th>
+                        <th>Año de Estudio</th>
                         <th>Orientación</th>
+                        <th>Estado</th>
                         <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
@@ -43,22 +43,26 @@
                     <input type="hidden" name="action" id="materiaAction" value="guardar">
                     
                     <div class="col-12">
-                        <label class="form-label text-muted small fw-semibold">Nombre de la Materia *</label>
+                        <label class="form-label text-muted small fw-semibold">Nombre de la Asignatura *</label>
                         <input type="text" name="nombre" id="materiaNombre" class="form-control bg-light border-0" required placeholder="Ej. Matemáticas">
                     </div>
                     
                     <div class="col-12">
-                        <label class="form-label text-muted small fw-semibold">Curso *</label>
-                        <select name="curso_id" id="materiaCurso" class="form-select bg-light border-0" required>
-                            <option value="">Seleccione un curso</option>
-                            <!-- Llenado por AJAX -->
+                        <label class="form-label text-muted small fw-semibold">Año de Estudio *</label>
+                        <select name="anio_estudio" id="materiaAnio" class="form-select bg-light border-0" required>
+                            <option value="">Seleccione un año</option>
+                            <option value="1">1° Año</option>
+                            <option value="2">2° Año</option>
+                            <option value="3">3° Año</option>
+                            <option value="4">4° Año</option>
+                            <option value="5">5° Año</option>
+                            <option value="6">6° Año</option>
                         </select>
                     </div>
                     
                     <div class="col-12">
                         <label class="form-label text-muted small fw-semibold">Orientación</label>
-                        <select name="orientacion_id" id="materiaOrientacion" class="form-select bg-light border-0">
-                            <option value="">Sin orientación</option>
+                        <select name="orientacion" id="materiaOrientacion" class="form-select bg-light border-0">
                             <!-- Llenado por AJAX -->
                         </select>
                     </div>
@@ -75,18 +79,9 @@
 <script>
 let tablaMaterias;
 $(document).ready(function() {
-    // Cargar cursos
-    $.post('controllers/materias_ajax.php', { action: 'listar_cursos' }, function(res) {
-        let options = '<option value="">Seleccione un curso</option>';
-        res.forEach(function(c) {
-            options += `<option value="${c.id}">${c.nombre} (${c.turno})</option>`;
-        });
-        $('#materiaCurso').html(options);
-    }, 'json');
-
     // Cargar orientaciones
     $.post('controllers/materias_ajax.php', { action: 'listar_orientaciones' }, function(res) {
-        let options = '<option value="">Sin orientación</option>';
+        let options = '';
         res.forEach(function(o) {
             options += `<option value="${o.id}">${o.nombre}</option>`;
         });
@@ -107,18 +102,31 @@ $(document).ready(function() {
         columns: [
             { data: 'id_hash', visible: false },
             { data: 'nombre', className: 'fw-bold' },
-            { data: 'curso', render: function(data) { return data || '<span class="text-muted small">Sin curso</span>'; } },
-            { data: 'turno', render: function(data) { return data || '-'; } },
-            { data: 'orientacion', render: function(data) { return data || '<span class="text-muted small">Sin orientación</span>'; } },
+            { data: 'anio_estudio', render: function(data) { return data + '° Año'; } },
+            { data: 'orientacion', render: function(data) { return data || '<span class="text-muted small">COMÚN</span>'; } },
             { 
-                data: 'id_hash', 
+                data: 'activo', 
+                render: function(data) { 
+                    return data == 1 
+                        ? '<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3">Activa</span>' 
+                        : '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3">Obsoleta</span>'; 
+                } 
+            },
+            { 
+                data: null, 
                 className: 'text-end',
                 orderable: false,
                 render: function(data, type, row) {
+                    let btnActivar = '';
+                    if (row.activo == 1) {
+                        btnActivar = `<button class="btn btn-sm btn-light border" title="Desactivar" onclick="eliminarMateria('${row.id_hash}')"><i class="fa-solid fa-trash text-danger"></i></button>`;
+                    } else {
+                        btnActivar = `<button class="btn btn-sm btn-light border" title="Restaurar" onclick="activarMateria('${row.id_hash}')"><i class="fa-solid fa-rotate-left text-success"></i></button>`;
+                    }
                     return `
                         <div class="btn-group shadow-sm">
                             <button class="btn btn-sm btn-light border" title="Editar" onclick='editarMateria(${JSON.stringify(row)})'><i class="fa-solid fa-pen text-warning"></i></button>
-                            <button class="btn btn-sm btn-light border" title="Eliminar" onclick="eliminarMateria('${data}')"><i class="fa-solid fa-trash text-danger"></i></button>
+                            ${btnActivar}
                         </div>
                     `;
                 }
@@ -157,34 +165,45 @@ function editarMateria(row) {
     resetFormMateria();
     $('#materiaId').val(row.id_hash);
     $('#materiaNombre').val(row.nombre);
-    $('#materiaCurso').val(row.curso_id);
+    $('#materiaAnio').val(row.anio_estudio);
     $('#materiaOrientacion').val(row.orientacion_id);
     $('#materiaAction').val('editar');
-    $('#modalMateriaTitle').text('Editar Materia');
+    $('#modalMateriaTitle').text('Editar Espacio Curricular');
     $('#modalMateria').modal('show');
 }
 
 function eliminarMateria(id_hash) {
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Eliminar esta materia no se puede deshacer.",
+        title: '¿Desactivar Espacio Curricular?',
+        text: "La materia pasará a estado obsoleto pero seguirá existiendo para el historial.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, desactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             $.post('controllers/materias_ajax.php', { action: 'eliminar', id: id_hash }, function(res) {
                 if(res.status === 'success') {
                     tablaMaterias.ajax.reload();
-                    Swal.fire({icon: 'success', title: 'Eliminada', text: res.msg, showConfirmButton: false, timer: 1500});
+                    Swal.fire({icon: 'success', title: 'Desactivada', text: res.msg, showConfirmButton: false, timer: 1500});
                 } else {
                     Swal.fire('Error', res.msg, 'error');
                 }
             }, 'json');
         }
     });
+}
+
+function activarMateria(id_hash) {
+    $.post('controllers/materias_ajax.php', { action: 'activar', id: id_hash }, function(res) {
+        if(res.status === 'success') {
+            tablaMaterias.ajax.reload();
+            Swal.fire({icon: 'success', title: 'Restaurada', text: res.msg, showConfirmButton: false, timer: 1500});
+        } else {
+            Swal.fire('Error', res.msg, 'error');
+        }
+    }, 'json');
 }
 </script>

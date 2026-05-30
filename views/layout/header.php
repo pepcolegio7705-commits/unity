@@ -268,11 +268,26 @@
             <nav id="sidebarMenu" class="sidebar collapse d-md-block">
                 <div class="sidebar-sticky">
                     <ul class="nav flex-column">
+                        <?php 
+                        $rol_sidebar = $_SESSION['rol'] ?? 'Invitado';
+                        $is_admin_sidebar = in_array($rol_sidebar, ['Administrador', 'Secretario', 'Preceptor', 'Directivo']);
+                        ?>
+
                         <li class="nav-item">
                             <a class="nav-link <?php echo ($page == 'dashboard') ? 'active' : ''; ?>" href="?page=dashboard">
                                 <i class="fa-solid fa-house"></i> Inicio
                             </a>
                         </li>
+                        
+                        <?php if ($rol_sidebar === 'Docente'): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo ($page == 'mis_materias') ? 'active' : ''; ?>" href="?page=mis_materias">
+                                <i class="fa-solid fa-book-bookmark"></i> Mis Materias
+                            </a>
+                        </li>
+                        <?php endif; ?>
+
+                        <?php if ($is_admin_sidebar): ?>
                         <li class="nav-item">
                             <a class="nav-link <?php echo ($page == 'alumnos') ? 'active' : ''; ?>" href="?page=alumnos">
                                 <i class="fa-solid fa-user-graduate"></i> Alumnos
@@ -304,6 +319,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo ($page == 'instancias') ? 'active' : ''; ?>" href="?page=instancias">
+                                <i class="fa-solid fa-calendar-check"></i> Instancias
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo ($page == 'reportes') ? 'active' : ''; ?>" href="?page=reportes">
+                                <i class="fa-solid fa-chart-bar"></i> Reportes
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo ($page == 'analiticos') ? 'active' : ''; ?>" href="?page=analiticos">
                                 <i class="fa-solid fa-file-signature"></i> Libro Matriz
                             </a>
@@ -323,6 +348,7 @@
                                 <i class="fa-solid fa-database"></i> Respaldos
                             </a>
                         </li>
+                        <?php endif; ?>
                         <!-- Aquí irán los siguientes módulos -->
                     </ul>
                 </div>

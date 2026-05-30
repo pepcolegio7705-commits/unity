@@ -15,6 +15,11 @@
                 <i class="bi bi-clock-history"></i> Historial
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link bg-dark text-white border-secondary border-bottom-0" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button" role="tab" aria-controls="reportes" aria-selected="false">
+                <i class="bi bi-printer"></i> Reportes
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content" id="asistenciasTabsContent">
@@ -112,6 +117,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tab: Reportes -->
+        <div class="tab-pane fade" id="reportes" role="tabpanel" aria-labelledby="reportes-tab">
+            <div class="card bg-dark border-secondary shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="card-title fw-bold text-white mb-4"><i class="bi bi-calendar-month text-primary"></i> Planilla Mensual de Asistencias</h5>
+                    <form id="formImprimirAsistencia" action="index.php" method="GET" target="_blank" class="row g-3">
+                        <input type="hidden" name="page" value="imprimir_asistencia">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small fw-semibold">Ciclo Lectivo</label>
+                            <select name="ciclo_lectivo_id" id="selectCicloReporte" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="">Seleccionar Ciclo...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small fw-semibold">Curso</label>
+                            <select name="curso_id" id="selectCursoReporte" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="">Seleccionar Curso...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small fw-semibold">Mes y Año</label>
+                            <input type="month" name="mes_anio" id="inputMesReporte" class="form-control bg-dark text-white border-secondary" required>
+                        </div>
+                        <div class="col-12 text-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4 fw-bold"><i class="bi bi-printer"></i> Imprimir Planilla</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -201,7 +237,7 @@ $(document).ready(function() {
                 render: function(data) {
                     return `<button class="btn btn-sm btn-warning text-dark btnEditarAsistencia" 
                             data-id="${data.id_hash}" data-tipo="${data.tipo_id}" data-obs="${data.observaciones || ''}">
-                            <i class="bi bi-pencil"></i>
+                            <i class="bi bi-pencil"></i> Editar
                             </button>`;
                 }
             }
@@ -315,6 +351,7 @@ function cargarListas() {
         cursos.forEach(c => {
             $('#selectCursoTomar').append(`<option value="${c.id}">${c.nombre}</option>`);
             $('#filtroCurso').append(`<option value="${c.id}">${c.nombre}</option>`);
+            $('#selectCursoReporte').append(`<option value="${c.id}">${c.nombre}</option>`);
         });
     }, 'json');
 
@@ -324,6 +361,19 @@ function cargarListas() {
             $('#filtroTipo').append(`<option value="${t.id}">${t.nombre}</option>`);
             $('#editarTipoAsistencia').append(`<option value="${t.id}">${t.nombre}</option>`);
         });
+    }, 'json');
+
+    $.post('controllers/asistencias_ajax.php', { action: 'obtener_ciclos' }, function(ciclos) {
+        if(ciclos && ciclos.length > 0) {
+            ciclos.forEach(c => {
+                $('#selectCicloReporte').append(`<option value="${c.id}">${c.nombre}</option>`);
+            });
+            // Auto select current year if possible
+            $('#selectCicloReporte').prop('selectedIndex', 1);
+            let today = new Date();
+            let month = ("0" + (today.getMonth() + 1)).slice(-2);
+            $('#inputMesReporte').val(today.getFullYear() + "-" + month);
+        }
     }, 'json');
 }
 </script>

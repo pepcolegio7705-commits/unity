@@ -258,7 +258,7 @@ switch ($action) {
         }
 
         try {
-            $stmt = $pdo->prepare("SELECT orientacion, asignatura FROM espacios_curriculares WHERE anio_estudio = :anio ORDER BY orientacion ASC, id ASC");
+            $stmt = $pdo->prepare("SELECT o.nombre AS orientacion, e.asignatura FROM espacios_curriculares e LEFT JOIN orientaciones o ON e.orientacion_id = o.id WHERE e.anio_estudio = :anio AND e.activo = 1 ORDER BY o.nombre ASC, e.id ASC");
             $stmt->execute(['anio' => $anio]);
             $materias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

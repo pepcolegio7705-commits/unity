@@ -3,121 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unity2 - Sintek</title>
+    <title>Unity2 - Sistema de Gestión Escolar Avanzado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-primario: #d35400; /* Naranja tecnológico */
-            --color-secundario: #f39c12; 
-            --gris-fondo: #fffaf0;
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --bg-light: #f8fafc;
+            --bg-dark: #0f172a;
+            --text-main: #1e293b;
+            --text-light: #64748b;
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background-color: var(--gris-fondo);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9) !important;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
         }
         .navbar-brand {
             font-weight: 800;
-            color: var(--color-primario) !important;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .hero-section {
-            background: linear-gradient(135deg, var(--color-primario) 0%, #333333 100%);
-            color: white;
-            padding: 100px 0;
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        
+        .btn-nav {
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 8px 24px;
+            transition: all 0.3s ease;
         }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 160px 0 100px;
+            background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.1), transparent 40%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 50%;
+            height: 50%;
+            background: var(--primary-light);
+            filter: blur(120px);
+            opacity: 0.3;
+            z-index: -1;
+            border-radius: 50%;
+        }
+
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 4.5rem;
             font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--bg-dark);
+        }
+
+        .hero-title span {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .btn-glow {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px 36px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(79, 70, 229, 0.4);
+            color: white;
+        }
+
+        /* Glass Mockup */
+        .glass-mockup {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            position: relative;
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+
+        .glass-mockup:hover {
+            transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+        }
+
+        .mockup-header {
+            display: flex;
+            gap: 8px;
             margin-bottom: 20px;
         }
-        .hero-img {
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            background: #fff;
-            padding: 10px;
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
-        .module-section {
-            padding: 80px 0;
+        .dot-r { background: #ff5f56; }
+        .dot-y { background: #ffbd2e; }
+        .dot-g { background: #27c93f; }
+
+        .mockup-body {
+            background: white;
+            border-radius: 12px;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: var(--text-light);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .module-title {
+
+        /* Features */
+        .features-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: var(--bg-light);
+            border-radius: 20px;
+            padding: 40px 30px;
+            height: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .feature-card:hover {
+            background: white;
+            border-color: rgba(79, 70, 229, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(6, 182, 212, 0.1));
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--color-primario);
-        }
-        .feature-list li {
             margin-bottom: 15px;
-            font-size: 1.1rem;
         }
-        .feature-list i {
-            color: var(--color-secundario);
-            margin-right: 10px;
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin: 0;
         }
-        .btn-custom {
-            background-color: #ffc107;
-            color: #000;
-            font-weight: 600;
-            padding: 12px 30px;
-            border-radius: 50px;
-            text-transform: uppercase;
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 0;
+            background: var(--bg-dark);
+            color: white;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-custom:hover {
-            background-color: #e0a800;
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(79, 70, 229, 0.2), transparent 60%);
+            pointer-events: none;
+        }
+
+        .footer {
+            background: #0b1120;
+            color: rgba(255,255,255,0.6);
+            padding: 30px 0;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @media (max-width: 991px) {
+            .hero-title { font-size: 3rem; }
+            .hero { padding: 120px 0 60px; }
+            .glass-mockup { margin-top: 50px; transform: none; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top py-3">
         <div class="container">
-            <a class="navbar-brand" href="../../sintek_landing_page/index.html"><i class="fas fa-arrow-left me-2"></i> Volver a Sintek</a>
+            <a class="navbar-brand" href="#"><i class="fa-solid fa-graduation-cap me-2"></i>Unity2</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item me-4">
+                        <a class="nav-link fw-medium" href="../../sintek_landing_page/index.html"><i class="fa-solid fa-arrow-left me-1"></i> Volver a Sintek</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary btn-nav" href="../login.php">Ingresar al Sistema</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-section text-center text-lg-start">
+    <section class="hero">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-6 mb-5 mb-lg-0">
-                    <h1 class="hero-title">El Eslabón de la Integración Empresarial</h1>
-                    <p class="lead mb-4 opacity-75">La plataforma centralizada para potenciar y unificar tus operaciones. Escalable, segura y adaptada a flujos de trabajo modernos.</p>
-                    <a href="../index.php" class="btn btn-custom btn-lg shadow">Explorar Sistema <i class="fas fa-arrow-right ms-2"></i></a>
+                <div class="col-lg-6 z-1">
+                    <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 fw-medium border border-primary-subtle">
+                        <i class="fa-solid fa-star me-1 text-warning"></i> La Nueva Era de Gestión Escolar
+                    </div>
+                    <h1 class="hero-title">
+                        Conecta y administra<br>
+                        tu colegio con <span>Inteligencia</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Unity2 es la plataforma integral definitiva. Desde el control de presentismo y analíticos hasta la gestión de docentes, centraliza toda la vida estudiantil en un entorno rápido, seguro y hermoso.
+                    </p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="../index.php" class="btn-glow">
+                            Ir al Panel de Control <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    <div class="mt-5 d-flex align-items-center gap-4 text-muted small fw-medium">
+                        <div><i class="fa-solid fa-check-circle text-success me-1"></i> 100% Seguro</div>
+                        <div><i class="fa-solid fa-bolt text-warning me-1"></i> Ultrarrápido</div>
+                        <div><i class="fa-solid fa-mobile-screen text-primary me-1"></i> Multiplataforma</div>
+                    </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <div class="hero-img d-flex align-items-center justify-content-center" style="height: 300px; background: #e9ecef;">
-                        <h3 class="text-muted"><i class="fas fa-project-diagram fa-3x mb-3"></i><br>Dashboard Unity2</h3>
+                
+                <div class="col-lg-6 z-1 position-relative">
+                    <div class="glass-mockup animate-float">
+                        <div class="mockup-header">
+                            <div class="dot dot-r"></div>
+                            <div class="dot dot-y"></div>
+                            <div class="dot dot-g"></div>
+                        </div>
+                        <div class="mockup-body overflow-hidden position-relative">
+                            <!-- Dashboard Abstract Representation -->
+                            <div class="w-100 h-100 p-4" style="background: #f8fafc;">
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div style="width: 40%; height: 20px; background: #e2e8f0; border-radius: 10px;"></div>
+                                    <div style="width: 20%; height: 20px; background: #e2e8f0; border-radius: 10px;"></div>
+                                </div>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-4">
+                                        <div class="bg-white rounded-3 shadow-sm p-3 h-100 border border-light">
+                                            <div class="rounded-circle mb-2" style="width:30px; height:30px; background: #e0e7ff;"></div>
+                                            <div style="width: 60%; height: 10px; background: #cbd5e1; border-radius: 5px; margin-bottom: 8px;"></div>
+                                            <div style="width: 80%; height: 15px; background: #94a3b8; border-radius: 5px;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="bg-white rounded-3 shadow-sm p-3 h-100 border border-light">
+                                            <div class="rounded-circle mb-2" style="width:30px; height:30px; background: #fce7f3;"></div>
+                                            <div style="width: 60%; height: 10px; background: #cbd5e1; border-radius: 5px; margin-bottom: 8px;"></div>
+                                            <div style="width: 80%; height: 15px; background: #94a3b8; border-radius: 5px;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="bg-white rounded-3 shadow-sm p-3 h-100 border border-light">
+                                            <div class="rounded-circle mb-2" style="width:30px; height:30px; background: #dcfce7;"></div>
+                                            <div style="width: 60%; height: 10px; background: #cbd5e1; border-radius: 5px; margin-bottom: 8px;"></div>
+                                            <div style="width: 80%; height: 15px; background: #94a3b8; border-radius: 5px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-3 shadow-sm p-3 border border-light" style="height: 120px;">
+                                    <div style="width: 30%; height: 15px; background: #cbd5e1; border-radius: 5px; margin-bottom: 20px;"></div>
+                                    <div class="d-flex align-items-end h-50 gap-2">
+                                        <div class="bg-primary bg-opacity-25 rounded-top" style="width:10%; height:40%"></div>
+                                        <div class="bg-primary bg-opacity-50 rounded-top" style="width:10%; height:70%"></div>
+                                        <div class="bg-primary rounded-top" style="width:10%; height:100%"></div>
+                                        <div class="bg-primary bg-opacity-75 rounded-top" style="width:10%; height:60%"></div>
+                                        <div class="bg-primary bg-opacity-50 rounded-top" style="width:10%; height:80%"></div>
+                                        <div class="bg-primary bg-opacity-25 rounded-top" style="width:10%; height:50%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="module-section">
+    <!-- Features -->
+    <section class="features-section">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6 order-lg-2">
-                    <h2 class="module-title">Conectando todas las piezas</h2>
-                    <p class="lead">Deja de trabajar en silos de información. Unity2 trae cohesión y transparencia.</p>
-                    <ul class="feature-list mt-4 list-unstyled">
-                        <li><i class="fas fa-check-circle"></i> <strong>Sincronización Total:</strong> Todas tus áreas hablando el mismo idioma.</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>Estadísticas Avanzadas:</strong> Toma decisiones basadas en datos estructurados.</li>
-                        <li><i class="fas fa-check-circle"></i> <strong>Crecimiento Modular:</strong> Suma nuevas funciones a medida que tu empresa crece.</li>
-                    </ul>
+            <h2 class="section-title">Soluciones diseñadas para Escuelas Reales</h2>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon text-primary">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h3>Gestión de Alumnos y Docentes</h3>
+                        <p>Administra legajos completos con fotografías, datos personales y de contacto. Asigna docentes a cursos específicos y controla su historial al milímetro.</p>
+                    </div>
                 </div>
-                <div class="col-lg-6 order-lg-1">
-                    <div class="hero-img d-flex align-items-center justify-content-center" style="height: 300px; background: #e9ecef;">
-                        <h3 class="text-muted"><i class="fas fa-network-wired fa-3x mb-3"></i><br>Integraciones</h3>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="color: var(--secondary);">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                        </div>
+                        <h3>Control de Asistencias</h3>
+                        <p>Toma de presentismo digital ultra rápida. Generación automática de planillas tipo almanaque listas para imprimir. Olvídate de los cálculos manuales.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="color: var(--accent);">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <h3>Libro Matriz y Analíticos</h3>
+                        <p>La columna vertebral legal de tu escuela. El sistema construye la trayectoria escolar de cada alumno y genera certificados analíticos de forma automática.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon text-success">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <h3>Cursos y Materias</h3>
+                        <p>Estructura aulas por ciclo lectivo, orientaciones y planes de estudio. Mantiene un borrado lógico para nunca perder el historial de los egresados.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon text-warning">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3>Roles y Seguridad</h3>
+                        <p>Accesos segmentados para Directivos, Secretarios, Preceptores y Docentes. Cada quien ve y edita únicamente lo que le corresponde.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon text-info">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                        <h3>Portal del Docente</h3>
+                        <p>Los profesores tienen su propio acceso para cargar las instancias de calificación y administrar sus materias asignadas de forma independiente y segura.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="text-center py-4 text-white" style="background: #1a1a1a;">
+    <!-- CTA -->
+    <section class="cta-section text-center">
+        <div class="container position-relative z-1">
+            <h2 class="mb-4 fw-bold display-5">¿Listo para transformar la administración?</h2>
+            <p class="lead mb-5 opacity-75 mx-auto" style="max-width: 600px;">
+                Inicia sesión ahora y descubre cómo Unity2 reduce el tiempo administrativo para que puedas enfocarte en lo más importante: la educación.
+            </p>
+            <a href="../login.php" class="btn btn-light btn-lg rounded-pill px-5 py-3 fw-bold shadow-lg" style="color: var(--primary);">
+                Acceder a Unity2 <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
-            <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> Sintek - Unity2.</p>
+            <div class="mb-3">
+                <i class="fa-solid fa-graduation-cap fs-3"></i>
+            </div>
+            <p class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> Sintek Software. Todos los derechos reservados.</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

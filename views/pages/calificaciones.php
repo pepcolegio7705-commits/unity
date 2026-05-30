@@ -323,7 +323,9 @@ function cargarListas() {
         } else {
             instancias.forEach(i => {
                 let opt = `<option value="${i.id}">${i.nombre} (${i.tipo}) - ${i.ciclo_nombre}</option>`;
-                $('#selectInstanciaCargar').append(opt);
+                if (i.activa == 1) {
+                    $('#selectInstanciaCargar').append(opt);
+                }
                 $('#selectInstanciaBoletin').append(opt);
             });
         }

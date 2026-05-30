@@ -88,6 +88,11 @@ switch ($action) {
             exit;
         }
         
+        if ($rol_id == 2) {
+            echo json_encode(['status' => 'error', 'msg' => 'Los docentes deben registrarse desde el módulo de Docentes para asegurar la integridad de los datos.']);
+            exit;
+        }
+        
         try {
             // Check duplicates
             $stmtCheck = $pdo->prepare("SELECT id FROM usuarios WHERE dni = :dni OR correo = :correo");
@@ -153,6 +158,15 @@ switch ($action) {
         }
         
         try {
+            // Verificar rol actual
+            $stmtRole = $pdo->prepare("SELECT rol_id FROM usuarios WHERE id = :id");
+            $stmtRole->execute(['id' => $id]);
+            $old_rol_id = $stmtRole->fetchColumn();
+
+            if ($old_rol_id == 2 || $rol_id == 2) {
+                echo json_encode(['status' => 'error', 'msg' => 'La gestión de Docentes (incluso su contraseña) debe realizarse desde el módulo de Docentes para evitar desincronización de datos.']);
+                exit;
+            }
             // Check duplicates (excluding self)
             $stmtCheck = $pdo->prepare("SELECT id FROM usuarios WHERE (dni = :dni OR correo = :correo) AND id != :id");
             $stmtCheck->execute(['dni' => $dni, 'correo' => $correo, 'id' => $id]);
@@ -211,6 +225,12 @@ switch ($action) {
         }
         
         try {
+            $stmtRole = $pdo->prepare("SELECT rol_id FROM usuarios WHERE id = :id");
+            $stmtRole->execute(['id' => $id]);
+            if ($stmtRole->fetchColumn() == 2) {
+                echo json_encode(['status' => 'error', 'msg' => 'Los docentes deben eliminarse desde el módulo de Docentes.']);
+                exit;
+            }
             $stmt = $pdo->prepare("DELETE FROM usuarios WHERE id = :id");
             $stmt->execute(['id' => $id]);
             echo json_encode(['status' => 'success', 'msg' => 'Usuario eliminado correctamente.']);

@@ -194,8 +194,33 @@ switch ($action) {
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
+    case 'obtener_ciclos':
+        $anio_actual = date('Y');
+        $nombre_ciclo = "Ciclo Lectivo " . $anio_actual;
+        
+        $check = $pdo->prepare("SELECT id FROM ciclos_lectivos WHERE nombre = ?");
+        $check->execute([$nombre_ciclo]);
+        if (!$check->fetch()) {
+            $insert = $pdo->prepare("INSERT INTO ciclos_lectivos (nombre, fecha_inicio, fecha_cierre) VALUES (?, ?, ?)");
+            $insert->execute([$nombre_ciclo, "$anio_actual-03-01", "$anio_actual-12-20"]);
+        }
+
+        $stmt = $pdo->query("SELECT id, nombre FROM ciclos_lectivos ORDER BY nombre DESC");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        break;
+
     case 'obtener_cursos':
-        $stmt = $pdo->query("SELECT id, nombre FROM cursos ORDER BY nombre ASC");
+        if ($_SESSION['rol'] === 'Docente') {
+            $stmt = $pdo->prepare("SELECT DISTINCT c.id, c.nombre 
+                                   FROM cursos c
+                                   JOIN asignaciones_docentes a ON c.id = a.curso_id
+                                   JOIN usuarios u ON u.dni = (SELECT dni FROM docentes WHERE id = a.docente_id LIMIT 1)
+                                   WHERE u.id = ?
+                                   ORDER BY c.nombre ASC");
+            $stmt->execute([$_SESSION['usuario_id']]);
+        } else {
+            $stmt = $pdo->query("SELECT id, nombre FROM cursos ORDER BY nombre ASC");
+        }
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 

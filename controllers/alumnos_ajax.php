@@ -171,14 +171,31 @@ switch ($action) {
             echo json_encode(['status' => 'error', 'msg' => 'ID inválido']);
             exit;
         }
-        $stmt = $pdo->prepare("SELECT * FROM lista_alfa WHERE id = :id");
-        $stmt->execute(['id' => $id]);
-        $alumno = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($alumno) {
-            $alumno['id_hash'] = $id_hash;
-            echo json_encode(['status' => 'success', 'data' => $alumno]);
-        } else {
-            echo json_encode(['status' => 'error', 'msg' => 'Alumno no encontrado.']);
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM lista_alfa WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+            $alumno = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($alumno) {
+                $alumno['id_hash'] = $id_hash;
+                
+                // Traer trayectoria
+                $stmtT = $pdo->prepare("
+                    SELECT c.nombre AS curso, cl.nombre AS ciclo
+                    FROM historial_trayectoria h
+                    JOIN cursos c ON h.curso_id = c.id
+                    JOIN ciclos_lectivos cl ON h.ciclo_lectivo_id = cl.id
+                    WHERE h.alumno_id = :id
+                    ORDER BY cl.nombre ASC, h.fecha_registro ASC
+                ");
+                $stmtT->execute(['id' => $id]);
+                $alumno['trayectoria'] = $stmtT->fetchAll(PDO::FETCH_ASSOC);
+                
+                echo json_encode(['status' => 'success', 'data' => $alumno]);
+            } else {
+                echo json_encode(['status' => 'error', 'msg' => 'Alumno no encontrado.']);
+            }
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'msg' => 'Error SQL en obtener: ' . $e->getMessage()]);
         }
         break;
 

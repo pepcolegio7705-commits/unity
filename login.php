@@ -136,8 +136,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <form method="POST" action="">
             <div class="text-start">
-                <label class="form-label text-muted fw-semibold small">Correo Electrónico</label>
-                <input type="email" name="correo" class="form-control" required autofocus placeholder="ej. admin@unity.com">
+                <label class="form-label text-muted fw-semibold small">Correo Electrónico o DNI</label>
+                <input type="text" name="correo" class="form-control" required autofocus placeholder="ej. admin@unity.com o 12345678">
             </div>
             
             <div class="text-start mb-4">

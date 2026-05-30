@@ -434,8 +434,18 @@ function verAlumno(id_hash) {
     $.post('controllers/alumnos_ajax.php', { action: 'obtener', id: id_hash }, function(res) {
         if(res.status === 'success') {
             const data = res.data;
-            let fotoHtml = data.foto ? `<img src="uploads/fotos_alumnos/${escapeHTML(data.foto)}" alt="Foto Alumno" class="img-thumbnail" style="max-height:120px;">` : `<div class="bg-light d-flex align-items-center justify-content-center border rounded" style="width: 100px; height: 120px;"><i class="fa-solid fa-user text-muted fs-1"></i></div>`;
+            let fotoHtml = data.foto ? `<img src="uploads/fotos_alumnos/${escapeHTML(data.foto)}" alt="Foto Alumno" class="img-thumbnail shadow-sm" style="width: 150px; height: 200px; object-fit: cover; object-position: top;">` : `<div class="bg-light d-flex align-items-center justify-content-center border rounded shadow-sm" style="width: 150px; height: 200px;"><i class="fa-solid fa-user text-muted" style="font-size: 4rem;"></i></div>`;
             let estadoHtml = data.estatus == 1 ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>';
+
+            let trayectoriaHtml = '<ul class="list-group list-group-flush border rounded">';
+            if (data.trayectoria && data.trayectoria.length > 0) {
+                data.trayectoria.forEach(t => {
+                    trayectoriaHtml += `<li class="list-group-item bg-light border-0 mb-1 rounded"><i class="fa-solid fa-graduation-cap text-muted me-2"></i> <strong>${escapeHTML(t.curso)}</strong> <span class="text-muted ms-2">(${escapeHTML(t.ciclo)})</span></li>`;
+                });
+            } else {
+                trayectoriaHtml += '<li class="list-group-item text-muted">No hay registro de trayectoria.</li>';
+            }
+            trayectoriaHtml += '</ul>';
 
             let html = `
                 <div class="row">
@@ -462,6 +472,11 @@ function verAlumno(id_hash) {
                             <div class="col-md-4"><strong class="small text-primary">Folio:</strong><br> ${escapeHTML(data.folio) || '-'}</div>
                             
                             <div class="col-12"><strong class="small text-primary">Observaciones:</strong><br> ${escapeHTML(data.obs) || '-'}</div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6 class="fw-bold text-primary border-bottom pb-2 mb-3"><i class="fa-solid fa-route"></i> Trayectoria Escolar</h6>
+                            ${trayectoriaHtml}
                         </div>
                     </div>
                 </div>

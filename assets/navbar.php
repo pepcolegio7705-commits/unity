@@ -24,6 +24,7 @@
           </a>
         </li>
 
+        <?php if ($_SESSION['rol'] !== 'Docente'): ?>
         <!-- GESTIÓN DE PERSONAS -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle <?= in_array($pagina, ['usuarios','alumnos','docentes']) ? 'active' : '' ?>" href="#" data-bs-toggle="dropdown">
@@ -35,6 +36,7 @@
             <li><a class="dropdown-item <?= $pagina === 'docentes' ? 'active' : '' ?>" href="docentes"><i class="bi bi-person-video3"></i> Docentes</a></li>
           </ul>
         </li>
+        <?php endif; ?>
 
         <!-- GESTIÓN ACADÉMICA -->
         <li class="nav-item dropdown">
@@ -42,8 +44,10 @@
             <i class="bi bi-journal-bookmark-fill"></i> Académico
           </a>
           <ul class="dropdown-menu">
+            <?php if ($_SESSION['rol'] !== 'Docente'): ?>
             <li><a class="dropdown-item <?= $pagina === 'cursos' ? 'active' : '' ?>" href="cursos"><i class="bi bi-journals"></i> Cursos</a></li>
             <li><a class="dropdown-item <?= $pagina === 'materias' ? 'active' : '' ?>" href="materias"><i class="bi bi-book-half"></i> Materias</a></li>
+            <?php endif; ?>
             <li><a class="dropdown-item <?= $pagina === 'asistencias' ? 'active' : '' ?>" href="asistencias.php"><i class="bi bi-clipboard-check"></i> Asistencias</a></li>
           </ul>
         </li>
@@ -54,26 +58,28 @@
             <i class="bi bi-card-checklist"></i> Calificaciones
           </a>
           <ul class="dropdown-menu">
+            <?php if ($_SESSION['rol'] !== 'Docente'): ?>
             <li><a class="dropdown-item" href="ciclos_lectivos" id="btnCicloLectivo"><i class="bi bi-calendar-event"></i> Ciclo lectivo</a></li>
             <li><a class="dropdown-item" href="instancias" id="btnInstancias"><i class="bi bi-list-check"></i> Instancias</a></li>
-            <li><a class="dropdown-item <?= $pagina === 'calificar' ? 'active' : '' ?>" href="calificar"><i class="bi bi-pencil-square me-1"></i> Calificar alumnos</a></li>
-            <li><a class="dropdown-item" href="listar_calificaciones">📊 Listar calificaciones</a></li>
-
+            <?php endif; ?>
+            <li><a class="dropdown-item <?= $pagina === 'calificar' ? 'active' : '' ?>" href="calificaciones.php"><i class="bi bi-pencil-square me-1"></i> Calificar alumnos</a></li>
           </ul>
         </li>
 
+        <?php if ($_SESSION['rol'] !== 'Docente'): ?>
         <!-- OPERACIONES -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle <?= in_array($pagina, ['respaldo','respaldo_sistema']) ? 'active' : '' ?>" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-gear"></i> Operaciones
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="configuracion_institucional"><i class="bi bi-gear-fill me-1"></i> Configuración Institucional</a></li>
-            <li><a class="dropdown-item <?= $pagina === 'respaldo' ? 'active' : '' ?>" href="respaldo">📦 Respaldo Base de Datos</a></li>
+            <li><a class="dropdown-item" href="configuracion.php"><i class="bi bi-gear-fill me-1"></i> Configuración Institucional</a></li>
+            <li><a class="dropdown-item <?= $pagina === 'respaldo' ? 'active' : '' ?>" href="respaldos.php">📦 Respaldo Base de Datos</a></li>
             <li><a class="dropdown-item <?= $pagina === 'respaldo_sistema' ? 'active' : '' ?>" href="respaldo_sistema">📦 Respaldo Sistema Completo</a></li>
             <li><a class="dropdown-item" href="modulo_accesos"><i class="bi bi-person-lines-fill me-2"></i> Accesos</a></li>
           </ul>
         </li>
+        <?php endif; ?>
       </ul>
 
       <?php if (isset($_SESSION['nombre'])): ?>

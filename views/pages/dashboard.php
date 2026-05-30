@@ -82,8 +82,6 @@ $is_admin = in_array($rol, ['Administrador', 'Secretario', 'Preceptor', 'Directi
 
 <div class="container-fluid px-md-4 mb-5">
 
-    <?php if ($is_admin): ?>
-        
         <!-- Premium Header -->
         <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap">
             <div>
@@ -105,22 +103,26 @@ $is_admin = in_array($rol, ['Administrador', 'Secretario', 'Preceptor', 'Directi
         <!-- Quick Actions -->
         <div class="row mb-4 g-3">
             <div class="col-6 col-md-3">
-                <a href="?page=usuarios" class="btn w-100 quick-action-btn shadow-sm text-primary d-flex align-items-center justify-content-center">
+                <a <?= $is_admin ? 'href="?page=usuarios"' : 'href="#" tabindex="-1" aria-disabled="true"' ?> 
+                   class="btn w-100 quick-action-btn shadow-sm text-primary d-flex align-items-center justify-content-center <?= !$is_admin ? 'disabled opacity-50' : '' ?>">
                     <i class="fa-solid fa-user-plus me-2 fs-5"></i> Nuevo Usuario
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="?page=cursos" class="btn w-100 quick-action-btn shadow-sm text-success d-flex align-items-center justify-content-center">
+                <a <?= $is_admin ? 'href="?page=cursos"' : 'href="#" tabindex="-1" aria-disabled="true"' ?> 
+                   class="btn w-100 quick-action-btn shadow-sm text-success d-flex align-items-center justify-content-center <?= !$is_admin ? 'disabled opacity-50' : '' ?>">
                     <i class="fa-solid fa-book-open me-2 fs-5"></i> Gestionar Cursos
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="?page=asistencias" class="btn w-100 quick-action-btn shadow-sm text-warning d-flex align-items-center justify-content-center">
+                <a <?= $is_admin ? 'href="?page=asistencias"' : 'href="#" tabindex="-1" aria-disabled="true"' ?> 
+                   class="btn w-100 quick-action-btn shadow-sm text-warning d-flex align-items-center justify-content-center <?= !$is_admin ? 'disabled opacity-50' : '' ?>">
                     <i class="fa-solid fa-calendar-check me-2 fs-5"></i> Tomar Asistencia
                 </a>
             </div>
             <div class="col-6 col-md-3">
-                <a href="?page=reportes" class="btn w-100 quick-action-btn shadow-sm text-info d-flex align-items-center justify-content-center">
+                <a <?= $is_admin ? 'href="?page=reportes"' : 'href="#" tabindex="-1" aria-disabled="true"' ?> 
+                   class="btn w-100 quick-action-btn shadow-sm text-info d-flex align-items-center justify-content-center <?= !$is_admin ? 'disabled opacity-50' : '' ?>">
                     <i class="fa-solid fa-file-pdf me-2 fs-5"></i> Generar Reporte
                 </a>
             </div>
@@ -178,13 +180,6 @@ $is_admin = in_array($rol, ['Administrador', 'Secretario', 'Preceptor', 'Directi
                 </div>
             </div>
         </div>
-
-    <?php else: ?>
-        <div class="dashboard-header text-center">
-            <h2 class="fw-bold mb-2">Bienvenido, <?= htmlspecialchars($nombre) ?></h2>
-            <p class="text-light opacity-75">Tu panel personalizado está en desarrollo.</p>
-        </div>
-    <?php endif; ?>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -201,8 +196,6 @@ $(document).ready(function () {
     setInterval(updateClock, 1000);
     updateClock();
 
-    <?php if ($is_admin): ?>
-    
     // Cargar Datos Dinámicos
     $.getJSON("dashboard_datos.php", function (res) {
         const $cards = $("#dashboardCards").empty();
@@ -363,7 +356,5 @@ $(document).ready(function () {
     }, 'json').fail(function() {
         $('#listaOrientacionesDashboard').html('<li class="mb-2 text-muted">Error al cargar orientaciones.</li>');
     });
-
-    <?php endif; ?>
 });
 </script>

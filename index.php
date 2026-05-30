@@ -9,21 +9,33 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $page = $_GET['page'] ?? 'dashboard';
+$rol = $_SESSION['rol'] ?? 'Invitado';
 
-// Páginas permitidas
-$allowed_pages = [
-    'dashboard',
-    'alumnos',
-    'docentes',
-    'cursos',
-    'materias',
-    'asistencias',
-    'calificaciones',
-    'analiticos',
-    'usuarios',
-    'configuracion',
-    'respaldos'
-];
+// Páginas permitidas según el rol
+if ($rol === 'Docente') {
+    $allowed_pages = [
+        'dashboard',
+        'mis_materias',
+        'aula_docente'
+    ];
+} else {
+    $allowed_pages = [
+        'dashboard',
+        'alumnos',
+        'docentes',
+        'cursos',
+        'materias',
+        'asistencias',
+        'calificaciones',
+        'instancias',
+        'reportes',
+        'analiticos',
+        'usuarios',
+        'configuracion',
+        'respaldos',
+        'imprimir_asistencia'
+    ];
+}
 
 if (!in_array($page, $allowed_pages)) {
     // Si la página no está en las permitidas, cargamos la vista heredada si existe
@@ -36,8 +48,10 @@ if (!in_array($page, $allowed_pages)) {
     $page = 'dashboard'; // fallback
 }
 
-// Cargar Header (solo para módulos MVC migrados)
-require_once 'views/layout/header.php';
+// Cargar Header (solo para módulos MVC migrados y no para impresión)
+if ($page !== 'imprimir_asistencia') {
+    require_once 'views/layout/header.php';
+}
 
 // Cargar vista del módulo MVC
 $view_path = 'views/pages/' . $page . '.php';
@@ -48,5 +62,7 @@ if (file_exists($view_path)) {
 }
 
 // Cargar Footer
-require_once 'views/layout/footer.php';
+if ($page !== 'imprimir_asistencia') {
+    require_once 'views/layout/footer.php';
+}
 ?>

@@ -12,20 +12,53 @@ $action = $_POST['action'] ?? '';
 
 switch ($action) {
     case 'obtener_cursos':
-        $stmt = $pdo->query("SELECT id, nombre, turno FROM cursos ORDER BY nombre ASC");
+        if ($_SESSION['rol'] === 'Docente') {
+            $stmt = $pdo->prepare("SELECT DISTINCT c.id, c.nombre, c.turno 
+                                   FROM cursos c
+                                   JOIN asignaciones_docentes a ON c.id = a.curso_id
+                                   JOIN usuarios u ON u.dni = (SELECT dni FROM docentes WHERE id = a.docente_id LIMIT 1)
+                                   WHERE u.id = ?
+                                   ORDER BY c.nombre ASC");
+            $stmt->execute([$_SESSION['usuario_id']]);
+        } else {
+            $stmt = $pdo->query("SELECT id, nombre, turno FROM cursos ORDER BY nombre ASC");
+        }
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
     case 'obtener_materias':
         $curso_id = $_POST['curso_id'] ?? 0;
-        $stmt = $pdo->prepare("SELECT id, nombre FROM materias WHERE curso_id = :curso_id ORDER BY nombre ASC");
-        $stmt->execute(['curso_id' => $curso_id]);
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        
+        $stmtC = $pdo->prepare("SELECT nombre, orientacion_id FROM cursos WHERE id = :id");
+        $stmtC->execute(['id' => $curso_id]);
+        $curso = $stmtC->fetch(PDO::FETCH_ASSOC);
+        
+        if ($curso) {
+            $anio = intval(substr($curso['nombre'], 0, 1));
+            $ori_id = $curso['orientacion_id'] ?: 1;
+            
+            if ($_SESSION['rol'] === 'Docente') {
+                $stmt = $pdo->prepare("SELECT e.id, e.asignatura AS nombre 
+                                       FROM espacios_curriculares e
+                                       JOIN asignaciones_docentes a ON e.id = a.espacio_curricular_id
+                                       JOIN usuarios u ON u.dni = (SELECT dni FROM docentes WHERE id = a.docente_id LIMIT 1)
+                                       WHERE e.anio_estudio = :a AND e.orientacion_id = :o AND e.activo = 1 
+                                         AND a.curso_id = :c AND u.id = :u
+                                       ORDER BY e.asignatura ASC");
+                $stmt->execute(['a' => $anio, 'o' => $ori_id, 'c' => $curso_id, 'u' => $_SESSION['usuario_id']]);
+            } else {
+                $stmt = $pdo->prepare("SELECT id, asignatura AS nombre FROM espacios_curriculares WHERE anio_estudio = :a AND orientacion_id = :o AND activo = 1 ORDER BY asignatura ASC");
+                $stmt->execute(['a' => $anio, 'o' => $ori_id]);
+            }
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        } else {
+            echo json_encode([]);
+        }
         break;
 
     case 'obtener_instancias':
         $sql = "
-            SELECT i.id, i.nombre, i.tipo, c.nombre AS ciclo_nombre
+            SELECT i.id, i.nombre, i.tipo, i.activa, c.nombre AS ciclo_nombre
             FROM instancias_calificacion i
             JOIN ciclos_lectivos c ON i.ciclo_lectivo_id = c.id
             ORDER BY i.creado_en DESC
@@ -89,6 +122,10 @@ switch ($action) {
         
         try {
             $pdo->beginTransaction();
+            
+            $stmtCiclo = $pdo->query("SELECT id FROM ciclos_lectivos ORDER BY id DESC LIMIT 1");
+            $ciclo_id = $stmtCiclo->fetchColumn() ?: 1;
+
             foreach ($alumno_ids as $i => $alumno_id) {
                 $nota = trim($notas[$i] ?? '');
                 $obs = trim($observaciones[$i] ?? '');
@@ -99,11 +136,11 @@ switch ($action) {
                 $check->execute(['a' => $alumno_id, 'c' => $curso_id, 'm' => $materia_id, 'i' => $instancia_id]);
                 
                 if ($check->fetch()) {
-                    $update = $pdo->prepare("UPDATE calificaciones SET nota = :n, observaciones = :o, fecha_registro = :f WHERE alumno_id = :a AND curso_id = :c AND materia_id = :m AND instancia_id = :i");
-                    $update->execute(['n' => $nota, 'o' => $obs, 'f' => $fecha, 'a' => $alumno_id, 'c' => $curso_id, 'm' => $materia_id, 'i' => $instancia_id]);
+                    $update = $pdo->prepare("UPDATE calificaciones SET nota = :n, observaciones = :o, fecha_registro = :f, ciclo_lectivo_id = :cl WHERE alumno_id = :a AND curso_id = :c AND materia_id = :m AND instancia_id = :i");
+                    $update->execute(['n' => $nota, 'o' => $obs, 'f' => $fecha, 'cl' => $ciclo_id, 'a' => $alumno_id, 'c' => $curso_id, 'm' => $materia_id, 'i' => $instancia_id]);
                 } else {
-                    $insert = $pdo->prepare("INSERT INTO calificaciones (alumno_id, curso_id, materia_id, instancia_id, nota, observaciones, fecha_registro) VALUES (:a, :c, :m, :i, :n, :o, :f)");
-                    $insert->execute(['a' => $alumno_id, 'c' => $curso_id, 'm' => $materia_id, 'i' => $instancia_id, 'n' => $nota, 'o' => $obs, 'f' => $fecha]);
+                    $insert = $pdo->prepare("INSERT INTO calificaciones (alumno_id, curso_id, materia_id, instancia_id, ciclo_lectivo_id, nota, observaciones, fecha_registro) VALUES (:a, :c, :m, :i, :cl, :n, :o, :f)");
+                    $insert->execute(['a' => $alumno_id, 'c' => $curso_id, 'm' => $materia_id, 'i' => $instancia_id, 'cl' => $ciclo_id, 'n' => $nota, 'o' => $obs, 'f' => $fecha]);
                 }
                 $guardadas++;
             }
@@ -124,7 +161,7 @@ switch ($action) {
             exit;
         }
 
-        $stmtCurso = $pdo->prepare("SELECT nombre, turno FROM cursos WHERE id = :id");
+        $stmtCurso = $pdo->prepare("SELECT nombre, turno, orientacion_id FROM cursos WHERE id = :id");
         $stmtCurso->execute(['id' => $curso_id]);
         $curso = $stmtCurso->fetch(PDO::FETCH_ASSOC);
 
@@ -148,8 +185,11 @@ switch ($action) {
             exit;
         }
 
-        $stmtMaterias = $pdo->prepare("SELECT id, nombre FROM materias WHERE curso_id = :id ORDER BY nombre");
-        $stmtMaterias->execute(['id' => $curso_id]);
+        $anio = intval(substr($curso['nombre'], 0, 1));
+        $ori_id = $curso['orientacion_id'] ?: 1;
+
+        $stmtMaterias = $pdo->prepare("SELECT id, asignatura AS nombre FROM espacios_curriculares WHERE anio_estudio = :a AND orientacion_id = :o AND activo = 1 ORDER BY asignatura");
+        $stmtMaterias->execute(['a' => $anio, 'o' => $ori_id]);
         $materias = $stmtMaterias->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($materias)) {

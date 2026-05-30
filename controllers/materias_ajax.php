@@ -8,13 +8,8 @@ header('Content-Type: application/json');
 $action = $_POST['action'] ?? '';
 
 switch ($action) {
-    case 'listar_cursos':
-        $stmt = $pdo->query("SELECT id, nombre, turno, orientacion_id FROM cursos ORDER BY nombre ASC");
-        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-        break;
-
     case 'listar_orientaciones':
-        $stmt = $pdo->query("SELECT id, nombre FROM orientaciones ORDER BY nombre ASC");
+        $stmt = $pdo->query("SELECT id, nombre FROM orientaciones WHERE activo = 1 ORDER BY nombre ASC");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
@@ -27,25 +22,21 @@ switch ($action) {
         $where = "1=1";
         $params = [];
         if (!empty($search)) {
-            $where .= " AND (m.nombre LIKE :search1 OR c.nombre LIKE :search2 OR o.nombre LIKE :search3)";
+            $where .= " AND (asignatura LIKE :search1 OR orientacion LIKE :search2 OR anio_estudio LIKE :search3)";
             $params[':search1'] = "%$search%";
             $params[':search2'] = "%$search%";
             $params[':search3'] = "%$search%";
         }
         
-        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM materias m 
-                                    LEFT JOIN cursos c ON m.curso_id = c.id 
-                                    LEFT JOIN orientaciones o ON m.orientacion_id = o.id 
-                                    WHERE $where");
+        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM espacios_curriculares e LEFT JOIN orientaciones o ON e.orientacion_id = o.id WHERE $where");
         $stmtCount->execute($params);
         $recordsTotal = $stmtCount->fetchColumn();
         
-        $sql = "SELECT m.id, m.nombre, m.curso_id, m.orientacion_id, c.nombre AS curso, c.turno, o.nombre AS orientacion 
-                FROM materias m 
-                LEFT JOIN cursos c ON m.curso_id = c.id 
-                LEFT JOIN orientaciones o ON m.orientacion_id = o.id 
+        $sql = "SELECT e.id, e.asignatura AS nombre, e.anio_estudio, o.nombre AS orientacion, e.orientacion_id, e.activo 
+                FROM espacios_curriculares e
+                LEFT JOIN orientaciones o ON e.orientacion_id = o.id
                 WHERE $where 
-                ORDER BY m.nombre ASC 
+                ORDER BY e.anio_estudio ASC, o.nombre ASC, e.asignatura ASC 
                 LIMIT :start, :length";
                 
         $stmt = $pdo->prepare($sql);
@@ -72,25 +63,25 @@ switch ($action) {
         
     case 'guardar':
         $nombre = trim($_POST['nombre'] ?? '');
-        $curso_id = !empty($_POST['curso_id']) ? intval($_POST['curso_id']) : null;
-        $orientacion_id = !empty($_POST['orientacion_id']) ? intval($_POST['orientacion_id']) : null;
+        $anio_estudio = intval($_POST['anio_estudio'] ?? 0);
+        $orientacion_id = intval($_POST['orientacion'] ?? 1);
         
-        if (empty($nombre) || empty($curso_id)) {
-            echo json_encode(['status' => 'error', 'msg' => 'Nombre y curso son obligatorios.']);
+        if (empty($nombre) || empty($anio_estudio)) {
+            echo json_encode(['status' => 'error', 'msg' => 'Nombre de asignatura y año de estudio son obligatorios.']);
             exit;
         }
         
         try {
-            $sql = "INSERT INTO materias (nombre, curso_id, orientacion_id) VALUES (:nombre, :curso_id, :orientacion_id)";
+            $sql = "INSERT INTO espacios_curriculares (asignatura, anio_estudio, orientacion_id, activo) VALUES (:nombre, :anio, :ori, 1)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 'nombre' => $nombre,
-                'curso_id' => $curso_id,
-                'orientacion_id' => $orientacion_id
+                'anio' => $anio_estudio,
+                'ori' => $orientacion_id
             ]);
-            echo json_encode(['status' => 'success', 'msg' => 'Materia creada correctamente.']);
+            echo json_encode(['status' => 'success', 'msg' => 'Espacio curricular creado correctamente.']);
         } catch (PDOException $e) {
-            echo json_encode(['status' => 'error', 'msg' => 'Error al guardar la materia.']);
+            echo json_encode(['status' => 'error', 'msg' => 'Error al guardar el espacio curricular.']);
         }
         break;
 
@@ -99,26 +90,26 @@ switch ($action) {
         $id = decrypt_id($id_hash);
         
         $nombre = trim($_POST['nombre'] ?? '');
-        $curso_id = !empty($_POST['curso_id']) ? intval($_POST['curso_id']) : null;
-        $orientacion_id = !empty($_POST['orientacion_id']) ? intval($_POST['orientacion_id']) : null;
+        $anio_estudio = intval($_POST['anio_estudio'] ?? 0);
+        $orientacion_id = intval($_POST['orientacion'] ?? 1);
         
-        if (empty($id) || empty($nombre) || empty($curso_id)) {
+        if (empty($id) || empty($nombre) || empty($anio_estudio)) {
             echo json_encode(['status' => 'error', 'msg' => 'Datos incompletos o ID inválido.']);
             exit;
         }
         
         try {
-            $sql = "UPDATE materias SET nombre = :nombre, curso_id = :curso_id, orientacion_id = :orientacion_id WHERE id = :id";
+            $sql = "UPDATE espacios_curriculares SET asignatura = :nombre, anio_estudio = :anio, orientacion_id = :ori WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 'nombre' => $nombre,
-                'curso_id' => $curso_id,
-                'orientacion_id' => $orientacion_id,
+                'anio' => $anio_estudio,
+                'ori' => $orientacion_id,
                 'id' => $id
             ]);
-            echo json_encode(['status' => 'success', 'msg' => 'Materia actualizada correctamente.']);
+            echo json_encode(['status' => 'success', 'msg' => 'Espacio curricular actualizado correctamente.']);
         } catch (PDOException $e) {
-            echo json_encode(['status' => 'error', 'msg' => 'Error al actualizar la materia.']);
+            echo json_encode(['status' => 'error', 'msg' => 'Error al actualizar.']);
         }
         break;
 
@@ -132,11 +123,31 @@ switch ($action) {
         }
         
         try {
-            $stmt = $pdo->prepare("DELETE FROM materias WHERE id = :id");
+            // Borrado lógico
+            $stmt = $pdo->prepare("UPDATE espacios_curriculares SET activo = 0 WHERE id = :id");
             $stmt->execute(['id' => $id]);
-            echo json_encode(['status' => 'success', 'msg' => 'Materia eliminada correctamente.']);
+            echo json_encode(['status' => 'success', 'msg' => 'Espacio curricular desactivado correctamente.']);
         } catch (PDOException $e) {
-            echo json_encode(['status' => 'error', 'msg' => 'No se puede eliminar la materia porque tiene registros asociados.']);
+            echo json_encode(['status' => 'error', 'msg' => 'No se pudo desactivar el registro.']);
+        }
+        break;
+
+    case 'activar':
+        $id_hash = $_POST['id'] ?? '';
+        $id = decrypt_id($id_hash);
+        
+        if (empty($id)) {
+            echo json_encode(['status' => 'error', 'msg' => 'ID inválido o alterado.']);
+            exit;
+        }
+        
+        try {
+            // Restaurar
+            $stmt = $pdo->prepare("UPDATE espacios_curriculares SET activo = 1 WHERE id = :id");
+            $stmt->execute(['id' => $id]);
+            echo json_encode(['status' => 'success', 'msg' => 'Espacio curricular restaurado (activado) correctamente.']);
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'msg' => 'No se pudo activar el registro.']);
         }
         break;
         

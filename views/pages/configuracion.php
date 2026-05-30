@@ -118,6 +118,8 @@
             </div>
         </div>
     </div>
+
+    </div>
 </div>
 
 <script>
@@ -207,7 +209,8 @@ $(document).ready(function() {
             }
         }, 'json');
     });
-});
+
+
 
 async function cargarDatosInstitucion() {
     $.post('controllers/configuracion_ajax.php', { action: 'consultar' }, function(res) {

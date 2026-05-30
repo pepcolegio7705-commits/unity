@@ -215,19 +215,41 @@ switch ($action) {
             exit;
         }
 
-        $check = $pdo->prepare("SELECT id FROM asignaciones_cursos WHERE alumno_id = :a AND curso_id = :c");
-        $check->execute(['a' => $alumno_id, 'c' => $curso_id]);
+        $stmtCiclo = $pdo->query("SELECT id FROM ciclos_lectivos ORDER BY id DESC LIMIT 1");
+        $ciclo_id = $stmtCiclo->fetchColumn() ?: 1;
+
+        $check = $pdo->prepare("SELECT id FROM asignaciones_cursos WHERE alumno_id = :a AND curso_id = :c AND ciclo_lectivo_id = :cl");
+        $check->execute(['a' => $alumno_id, 'c' => $curso_id, 'cl' => $ciclo_id]);
         if ($check->fetch()) {
-            echo json_encode(['status' => 'error', 'msg' => 'El alumno ya está asignado a este curso.']);
+            echo json_encode(['status' => 'error', 'msg' => 'El alumno ya está asignado a este curso en el ciclo actual.']);
             exit;
         }
 
         try {
-            $stmt = $pdo->prepare("INSERT INTO asignaciones_cursos (alumno_id, curso_id, fecha_asignacion) VALUES (:a, :c, CURDATE())");
-            $stmt->execute(['a' => $alumno_id, 'c' => $curso_id]);
-            echo json_encode(['status' => 'success', 'msg' => 'Alumno asignado correctamente.']);
+            $stmt = $pdo->prepare("INSERT INTO asignaciones_cursos (alumno_id, curso_id, ciclo_lectivo_id, fecha_asignacion) VALUES (:a, :c, :cl, CURDATE())");
+            $stmt->execute(['a' => $alumno_id, 'c' => $curso_id, 'cl' => $ciclo_id]);
+            
+            // Guardar en historial de trayectoria (Actualiza si ya existe en el mismo ciclo)
+            $stmtHist = $pdo->prepare("
+                INSERT INTO historial_trayectoria (alumno_id, curso_id, ciclo_lectivo_id) 
+                VALUES (:a, :c, :cl)
+                ON DUPLICATE KEY UPDATE curso_id = VALUES(curso_id), fecha_registro = CURRENT_TIMESTAMP
+            ");
+            $stmtHist->execute(['a' => $alumno_id, 'c' => $curso_id, 'cl' => $ciclo_id]);
+            
+            // Migrar automáticamente las asistencias del año actual (Stand By)
+            $stmtMigrar = $pdo->prepare("UPDATE IGNORE asistencias SET curso_id = :nc1 WHERE alumno_id = :a AND YEAR(fecha) = YEAR(CURDATE()) AND curso_id != :nc2");
+            $stmtMigrar->execute(['nc1' => $curso_id, 'a' => $alumno_id, 'nc2' => $curso_id]);
+            $asistenciasMigradas = $stmtMigrar->rowCount();
+            
+            $msg = 'Alumno asignado correctamente.';
+            if ($asistenciasMigradas > 0) {
+                $msg .= " Se migraron automáticamente $asistenciasMigradas registro(s) de asistencia de su(s) curso(s) anterior(es).";
+            }
+            
+            echo json_encode(['status' => 'success', 'msg' => $msg]);
         } catch (PDOException $e) {
-            echo json_encode(['status' => 'error', 'msg' => 'Error al asignar alumno.']);
+            echo json_encode(['status' => 'error', 'msg' => 'Error al asignar alumno. Detalle: ' . $e->getMessage()]);
         }
         break;
 
@@ -241,11 +263,55 @@ switch ($action) {
         }
 
         try {
+            $stmtGet = $pdo->prepare("SELECT alumno_id, curso_id, ciclo_lectivo_id FROM asignaciones_cursos WHERE id = :id");
+            $stmtGet->execute(['id' => $asignacion_id]);
+            $asig = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
             $stmt = $pdo->prepare("DELETE FROM asignaciones_cursos WHERE id = :id");
             $stmt->execute(['id' => $asignacion_id]);
+
+            if ($asig) {
+                // Eliminar también de la trayectoria para no dejar registros huérfanos en ese ciclo y curso
+                $stmtDelHist = $pdo->prepare("DELETE FROM historial_trayectoria WHERE alumno_id = :a AND curso_id = :c AND ciclo_lectivo_id = :cl");
+                $stmtDelHist->execute(['a' => $asig['alumno_id'], 'c' => $asig['curso_id'], 'cl' => $asig['ciclo_lectivo_id']]);
+            }
+
             echo json_encode(['status' => 'success', 'msg' => 'Alumno desasignado correctamente.']);
         } catch (PDOException $e) {
             echo json_encode(['status' => 'error', 'msg' => 'Error al desasignar alumno.']);
+        }
+        break;
+
+    case 'obtener_materias':
+        $curso_id = $_POST['curso_id'] ?? '';
+        
+        if (empty($curso_id)) {
+            echo json_encode([]);
+            exit;
+        }
+
+        // Obtener el curso para saber su orientación y el año
+        $stmt = $pdo->prepare("SELECT nombre, orientacion_id FROM cursos WHERE id = :id");
+        $stmt->execute(['id' => $curso_id]);
+        $curso = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($curso) {
+            // Extraer el año del nombre del curso (ej: "1°1° - Ciclo Básico" -> 1)
+            $anio = (int) substr($curso['nombre'], 0, 1);
+            $orientacion_id = $curso['orientacion_id'];
+
+            // Buscar materias que coincidan con el año y la orientación
+            $sql = "SELECT id, asignatura AS nombre 
+                    FROM espacios_curriculares 
+                    WHERE anio_estudio = :anio AND orientacion_id = :ori AND activo = 1 
+                    ORDER BY asignatura ASC";
+            $stmtMat = $pdo->prepare($sql);
+            $stmtMat->execute(['anio' => $anio, 'ori' => $orientacion_id]);
+            $materias = $stmtMat->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode($materias);
+        } else {
+            echo json_encode([]);
         }
         break;
 
