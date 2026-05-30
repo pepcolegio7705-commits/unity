@@ -95,14 +95,31 @@ switch ($action) {
         $telefono = trim($_POST['telefono'] ?? '');
         $obs = trim($_POST['obs'] ?? '');
         
+        $dni_tutor = trim($_POST['dni_tutor'] ?? '');
+        $fechan = trim($_POST['fechan'] ?? '');
+        $lugar = trim($_POST['lugar'] ?? '');
+        $nacionalidad = trim($_POST['nacionalidad'] ?? '');
+        $escp = trim($_POST['escp'] ?? '');
+        $estatus = intval($_POST['estatus'] ?? 1);
+        $fecha_alta = trim($_POST['fecha_alta'] ?? date('Y-m-d'));
+        
         if (empty($nombre) || empty($dni)) {
             echo json_encode(['status' => 'error', 'msg' => 'Nombre y DNI son obligatorios.']);
             exit;
         }
         
+        $foto_name = null;
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = '../uploads/fotos_alumnos/';
+            if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+            $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $foto_name = uniqid('foto_') . '.' . $ext;
+            move_uploaded_file($_FILES['foto']['tmp_name'], $upload_dir . $foto_name);
+        }
+        
         try {
-            $sql = "INSERT INTO lista_alfa (alumno, dni, legajo, libro, folio, obs, estatus) 
-                    VALUES (:nombre, :dni, :legajo, :libro, :folio, :obs, 1)";
+            $sql = "INSERT INTO lista_alfa (alumno, dni, legajo, libro, folio, email, telefono, fecha_alta, obs, estatus, dni_tutor, fechan, lugar, nacionalidad, escp, foto) 
+                    VALUES (:nombre, :dni, :legajo, :libro, :folio, :email, :telefono, :fecha_alta, :obs, :estatus, :dni_tutor, :fechan, :lugar, :nacionalidad, :escp, :foto)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 'nombre' => $nombre,
@@ -110,7 +127,17 @@ switch ($action) {
                 'legajo' => $legajo,
                 'libro' => $libro,
                 'folio' => $folio,
-                'obs' => $obs
+                'email' => $email,
+                'telefono' => $telefono,
+                'fecha_alta' => empty($fecha_alta) ? date('Y-m-d') : $fecha_alta,
+                'obs' => $obs,
+                'estatus' => $estatus,
+                'dni_tutor' => $dni_tutor,
+                'fechan' => empty($fechan) ? null : $fechan,
+                'lugar' => $lugar,
+                'nacionalidad' => $nacionalidad,
+                'escp' => $escp,
+                'foto' => $foto_name
             ]);
             
             echo json_encode(['status' => 'success', 'msg' => 'Alumno guardado correctamente.']);
@@ -167,24 +194,65 @@ switch ($action) {
         $legajo = trim($_POST['legajo'] ?? '');
         $libro = trim($_POST['libro'] ?? '');
         $folio = trim($_POST['folio'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '');
         $obs = trim($_POST['obs'] ?? '');
+        
+        $dni_tutor = trim($_POST['dni_tutor'] ?? '');
+        $fechan = trim($_POST['fechan'] ?? '');
+        $lugar = trim($_POST['lugar'] ?? '');
+        $nacionalidad = trim($_POST['nacionalidad'] ?? '');
+        $escp = trim($_POST['escp'] ?? '');
+        $estatus = intval($_POST['estatus'] ?? 1);
+        $fecha_alta = trim($_POST['fecha_alta'] ?? date('Y-m-d'));
         
         if (empty($nombre) || empty($dni)) {
             echo json_encode(['status' => 'error', 'msg' => 'Nombre y DNI obligatorios.']);
             exit;
         }
+        
+        // Manejar Foto si sube una nueva
+        $foto_update = "";
+        $params = [
+            'nombre' => $nombre,
+            'dni' => $dni,
+            'legajo' => $legajo,
+            'libro' => $libro,
+            'folio' => $folio,
+            'email' => $email,
+            'telefono' => $telefono,
+            'obs' => $obs,
+            'dni_tutor' => $dni_tutor,
+            'fechan' => empty($fechan) ? null : $fechan,
+            'lugar' => $lugar,
+            'nacionalidad' => $nacionalidad,
+            'escp' => $escp,
+            'estatus' => $estatus,
+            'fecha_alta' => empty($fecha_alta) ? date('Y-m-d') : $fecha_alta,
+            'id' => $id
+        ];
+
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = '../uploads/fotos_alumnos/';
+            if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+            $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $foto_name = uniqid('foto_') . '.' . $ext;
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_dir . $foto_name)) {
+                $foto_update = ", foto = :foto";
+                $params['foto'] = $foto_name;
+            }
+        }
+        
         try {
-            $sql = "UPDATE lista_alfa SET alumno = :nombre, dni = :dni, legajo = :legajo, libro = :libro, folio = :folio, obs = :obs WHERE id = :id";
+            $sql = "UPDATE lista_alfa SET 
+                        alumno = :nombre, dni = :dni, legajo = :legajo, libro = :libro, 
+                        folio = :folio, email = :email, telefono = :telefono, obs = :obs,
+                        dni_tutor = :dni_tutor, fechan = :fechan, lugar = :lugar, 
+                        nacionalidad = :nacionalidad, escp = :escp, estatus = :estatus, 
+                        fecha_alta = :fecha_alta {$foto_update}
+                    WHERE id = :id";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'nombre' => $nombre,
-                'dni' => $dni,
-                'legajo' => $legajo,
-                'libro' => $libro,
-                'folio' => $folio,
-                'obs' => $obs,
-                'id' => $id
-            ]);
+            $stmt->execute($params);
             echo json_encode(['status' => 'success', 'msg' => 'Alumno actualizado correctamente.']);
         } catch (PDOException $e) {
             echo json_encode(['status' => 'error', 'msg' => 'Error al actualizar. Posible duplicado.']);

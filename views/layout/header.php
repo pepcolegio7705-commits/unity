@@ -304,6 +304,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link <?php echo ($page == 'analiticos') ? 'active' : ''; ?>" href="?page=analiticos">
+                                <i class="fa-solid fa-file-signature"></i> Libro Matriz
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link <?php echo ($page == 'usuarios') ? 'active' : ''; ?>" href="?page=usuarios">
                                 <i class="fa-solid fa-users"></i> Usuarios
                             </a>

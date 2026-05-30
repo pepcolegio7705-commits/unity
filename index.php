@@ -19,6 +19,7 @@ $allowed_pages = [
     'materias',
     'asistencias',
     'calificaciones',
+    'analiticos',
     'usuarios',
     'configuracion',
     'respaldos'
